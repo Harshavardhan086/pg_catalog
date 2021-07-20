@@ -156,4 +156,8 @@ module OrgsHelper
 
   end
 
+  def active_programs
+    Program.where(inactive: [nil, false])
+  end
+
 end

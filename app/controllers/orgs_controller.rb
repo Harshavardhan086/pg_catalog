@@ -121,7 +121,10 @@ class OrgsController < ApplicationController
 
     end
 
-#    update_dynamo_db(params["catalog"])
+    if params.key?("db")
+      update_dynamo_db(params["catalog"])
+    end
+
 
   end
 
@@ -492,7 +495,7 @@ class OrgsController < ApplicationController
     # {'GeoScope': {'value': 'National', 'type': 'Scope'}, 'application_name': 'demo'}
 
     query_params = params["search_params"].keys
-    all_acttive_programs = Program.where(inactive: nil)
+    all_acttive_programs = helpers.active_programs
     logger.debug("query_params iss : #{query_params}")
     if query_params.sort == ["application_name"].sort
       logger.debug("ONLY application")
@@ -971,7 +974,7 @@ class OrgsController < ApplicationController
     # if query_params.sort == ["ServiceGroupsContainer"].sort
     if query_params.empty?
       # logger.debug("**************you are in the epmty")
-      all_active_programs = Program.where(inactive: nil)
+      all_active_programs = helpers.active_programs
       final_program_array = all_active_programs
       # logger.debug("**********active programs are #{final_program_array.count}")
     else
@@ -1028,7 +1031,7 @@ class OrgsController < ApplicationController
       #logger.debug("*****search_category_result_array after Service Tags: -- #{search_category_result_array} ")
 
       if query_params.include? ('name')
-        all_acttive_programs = Program.where(inactive: nil)
+        all_acttive_programs = helpers.active_programs
         # logger.debug("************IN the final else------------NAME")
         org_name = params["search_params"]["name"]
         programs = filter_name(org_name,all_acttive_programs)
@@ -1042,7 +1045,7 @@ class OrgsController < ApplicationController
 
       if query_params.include? ('ProgDescr')
 
-        all_acttive_programs = Program.where(inactive: nil)
+        all_acttive_programs = helpers.active_programs
         # logger.debug("************IN the final else------------NAME")
         prog_description = params["search_params"]["ProgDescr"]
         programs = filter_prog_desc(prog_description,all_acttive_programs)
@@ -1115,7 +1118,7 @@ class OrgsController < ApplicationController
         # end
          if scope_type != "Zipcode"
            #logger.debug("********* the lines you just commented !!!!!!!!!!!!!!")
-           all_active_programs = Program.where(inactive: nil)
+           all_active_programs = helpers.active_programs
            programs = filter_scope(scope_value, scope_type, all_active_programs)
            geo_scope_result = programs.pluck(:id)
         
@@ -1166,22 +1169,22 @@ class OrgsController < ApplicationController
             logger.debug("********the keys are #{zipd}")
             if zipd[0].to_s == "state_code"
               logger.debug("*******are you in here")
-              all_active_programs = Program.where(inactive: nil)
+              all_active_programs = helpers.active_programs
               programs = filter_scope(zipd[1], "State", all_active_programs)
 
               state_prog_names = programs.pluck(:id)
               # zipcode_programs.push(zip_prog_names)
             elsif zipd[0].to_s == "city"
-              all_active_programs = Program.where(inactive: nil)
+              all_active_programs = helpers.active_programs
               programs = filter_scope(zipd[1], "City", all_active_programs)
               city_prog_names = programs.pluck(:id)
               # zipcode_programs.push(zip_prog_names)
             elsif zipd[0].to_s == "county"
-              all_active_programs = Program.where(inactive: nil)
+              all_active_programs = helpers.active_programs
               programs = filter_scope(zipd[1], "County", all_active_programs)
               county_prog_names = programs.pluck(:id)
             elsif zipd[0].to_s == "national"
-              all_active_programs = Program.where(inactive: nil)
+              all_active_programs = helpers.active_programs
               programs = filter_scope(zipd[1], "National", all_active_programs)
               national_prog_names = programs.pluck(:id)
             end
@@ -1229,6 +1232,7 @@ class OrgsController < ApplicationController
     render :json => {status: :ok, result_count: complete_result.count , complete_result: complete_result }
 
   end
+
 
   def temp_zipcode_work(city_prog_names, final_state_prog_names, final_county_prog_names, final_national_prog_names )
     state_program_array = []
@@ -1522,7 +1526,7 @@ class OrgsController < ApplicationController
 
   def remove_tag_from_dynamodb(program_ids, tag_to_remove, tag_to_replace_with)
 
-    table_names =["demo_catalog", "demo_master_catalog"]
+    table_names =["preprod_catalog", "preprod_master_catalog"]
 
     table_names.each do |table_name|
 
