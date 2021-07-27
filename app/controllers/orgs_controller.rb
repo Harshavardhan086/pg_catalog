@@ -583,7 +583,7 @@ class OrgsController < ApplicationController
     programs.each do |p|
       org = p.org
       scope = org.scopes.first
-      org_name_grab_field = org.grab_lists.where(field_name: "OrganizationName").first
+      org_name_grab_field = org.grab_lists.where(field_name: "OrganizationName").last
       program_services = p.service_groups.pluck(:name)
       program_population = p.population_groups.pluck(:name)
       p_service_tags = p.service_tags.pluck(:name).join(", ")
@@ -689,10 +689,13 @@ class OrgsController < ApplicationController
                 "P_Family": program_population.include?("Family") ? true : false,
                 "P_LGBTQ": program_population.include?("LGBTQ") ? true : false,
                 "P_LowIncome": program_population.include?("LowIncome") ? true : false,
+                "P_VeryLowIncome": program_population.include?("VeryLowIncome") ? true : false,
+                "P_Men": program_population.include?("Men") ? true : false,
                 "P_Native": program_population.include?("Native") ? true : false,
                 "P_Other": program_population.include?("Other") ? true : false,
                 "P_Senior": program_population.include?("Senior") ? true : false,
                 "P_Veteran": program_population.include?("Veteran") ? true : false,
+                "P_Women": program_population.include?("Women") ? true : false,
                 "PopulationDescription": [
                     {
 
@@ -729,8 +732,10 @@ class OrgsController < ApplicationController
                 "S_Medical": program_services.include?("Medical") ? true : false,
                 "S_Research": program_services.include?("Research") ? true : false,
                 "S_Resources": program_services.include?("Resources") ? true : false,
+                "S_Referrals": program_services.include?("Referrals") ? true : false,
                 "S_Respite": program_services.include?("Respite") ? true : false,
                 "S_Senior": program_services.include?("Senior") ? true : false,
+                "S_Teen & Youth": program_services.include?("Teen & Youth") ? true : false,
                 "S_Transportation": program_services.include?("Transportation") ? true : false,
                 "S_Veterans": program_services.include?("Veterans") ? true : false,
                 "S_Victim": program_services.include?("Victim") ? true : false,
